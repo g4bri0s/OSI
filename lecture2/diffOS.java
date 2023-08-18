@@ -8,7 +8,7 @@ public class diffOS {
 
         System.out.println("Trying to get values from console...");
 
-        System.out.print(scanner.nextLine());
+        System.out.print("Values typed: " + scanner.nextLine());
 
         scanner.close();
     }
