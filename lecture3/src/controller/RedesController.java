@@ -23,16 +23,18 @@ public class RedesController {
 		String osName = os();
 		System.out.println(osName);
 
+		Process proc;
+
 		if (osName.contains("Linux")) {
 			try {
-				Process proc = Runtime.getRuntime().exec("ip addr");
+				proc = Runtime.getRuntime().exec("ip addr");
 				processOutput(proc.getInputStream(), "Linux");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else if (osName.contains("Windows")) {
 			try {
-				Process proc = Runtime.getRuntime().exec("ipconfig");
+				proc = Runtime.getRuntime().exec("ipconfig");
 				processOutput(proc.getInputStream(), "Windows");
 			} catch (IOException e) {
 				e.printStackTrace();
