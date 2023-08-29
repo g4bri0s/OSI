@@ -1,4 +1,4 @@
-package controller;
+package lecture3.src.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,18 +21,19 @@ public class RedesController {
 
 	public static void ip() {
 		String osName = os();
+		System.out.println(osName);
 
 		if (osName.contains("Linux")) {
 			try {
 				Process proc = Runtime.getRuntime().exec("ip addr");
-				processOutput(proc.getInputStream(), osName);
+				processOutput(proc.getInputStream(), "Linux");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else if (osName.contains("Windows")) {
 			try {
 				Process proc = Runtime.getRuntime().exec("ipconfig");
-				processOutput(proc.getInputStream(), osName);
+				processOutput(proc.getInputStream(), "Windows");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -58,19 +59,14 @@ public class RedesController {
 
 	public static void processOutput(InputStream inputStream, String osName) {
 		try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
-			Pattern adapterPattern = Pattern.compile("^\\s*(\\w+) .*$");
-			Pattern ipv4Pattern = Pattern.compile(".*IPv4 Address\\s*: ([0-9.]+).*");
+			Pattern ipv4Pattern = Pattern.compile(".*IPv4[\\. ]+:[ ]*([0-9.]+).*");
 
 			buffer.lines().map(line -> {
-				Matcher adapterMatcher = adapterPattern.matcher(line);
 				Matcher ipv4Matcher = ipv4Pattern.matcher(line);
-
-				String adapterName = adapterMatcher.matches() ? adapterMatcher.group(1) : null;
 				String ipv4Address = ipv4Matcher.matches() ? ipv4Matcher.group(1) : null;
 
-				return osName + "|" + (adapterName != null ? adapterName + ": " : "")
-						+ (ipv4Address != null ? ipv4Address : "");
-			}).filter(line -> !line.endsWith(": "))
+				return (ipv4Address != null ? "IPv4: " + ipv4Address : "");
+			}).filter(line -> line.contains("IPv4"))
 					.forEach(System.out::println);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -83,16 +79,17 @@ public class RedesController {
 
 		String pingOutput = reader.lines().collect(Collectors.joining("\n"));
 
-		Pattern avgTimePattern = Pattern.compile("Average = (\\d+)ms");
+		Pattern avgTimePattern = Pattern.compile("(?:Average = |dia = )(\\d+)\\s*(?:ms|milissegundos)");
 		Matcher avgTimeMatcher = avgTimePattern.matcher(pingOutput);
 
 		if (avgTimeMatcher.find()) {
 			String avgTime = avgTimeMatcher.group(1);
-			System.out.println("Tempo médio de ping: " + avgTime + "ms");
+			System.out.println("Average: " + avgTime + "ms");
 		} else {
-			System.out.println("Não foi possível obter o tempo médio de ping.");
+			System.out.println("Wasn't able to find the average time.");
 		}
 
 		reader.close();
 	}
+
 }
